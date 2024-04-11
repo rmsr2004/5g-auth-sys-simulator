@@ -7,3 +7,6 @@ The work to be carried out in this project should simulate a real-time authorisa
 
 System API.
 
+
+
+Use "compile_all.sh" to compile the program!
