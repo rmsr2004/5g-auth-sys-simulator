@@ -1,0 +1,24 @@
+CC	= gcc
+OBJS	= system_manager/system_manager.o log/log.o shared_memory/shm_lib.o system_manager/sm_lib.o
+PROG	= 5g_auth_platform
+FLAGS	= -Wall -Wextra -pthread -lpthread -D_REENTRANT
+
+all:	${PROG}
+
+clean:	
+	rm -f ${OBJS} *~
+
+${PROG}:	${OBJS}
+	${CC} ${FLAGS} ${OBJS} -o $@
+
+.c.o:
+	${CC} ${FLAGS} $< -c -o $@
+
+log/log.o:	log/log.c
+log/log.c:	log/log.h
+
+shared_memory/shm_lib.o:	shared_memory/shm_lib.c
+shared_memory/shm_lib.c:	shared_memory/shm_lib.h
+
+system_manager/sm_lib.o:	system_manager/sm_lib.c
+system_manager/sm_lib.c:	system_manager/sm_lib.h

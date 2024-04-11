@@ -1,0 +1,15 @@
+CC	= gcc
+OBJS	= backoffice/backoffice.o
+PROG	= backoffice_user
+FLAGS	= -Wall -Wextra -pthread -lpthread -D_REENTRANT
+
+all:	${PROG}
+
+clean:
+	rm -f ${OBJS} *~
+
+${PROG}:	${OBJS}
+	${CC} ${FLAGS} ${OBJS} -o $@
+
+.c.o:
+	${CC} ${FLAGS} $< -c -o $@
