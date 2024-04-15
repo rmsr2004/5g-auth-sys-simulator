@@ -5,10 +5,14 @@
 #include <string.h>
 #include <wait.h>
 #include <unistd.h>
+#include <signal.h>
+#include <errno.h>
+#include <sys/types.h>
 
 #include "../log/log.h"
 #include "../shared_memory/shm_lib.h"
 #include "sm_lib.h"
+#include "../globals/globals.h"
 
 int shmid;
 int* shared_var;
@@ -31,7 +35,7 @@ int main(int argc, char* argv[]){
     /*
     * Check if Config File is valid
     */
-    FILE *f = fopen(argv[1], "r");
+    FILE* f = fopen(argv[1], "r");
     if(f == NULL){
         perror("Error opening config_file");
         close_log();
@@ -45,6 +49,12 @@ int main(int argc, char* argv[]){
     int config_values[6];
     while(fgets(line, 9, f) != NULL){
         remove_line_break(line);
+        if(!is_number(line)){
+            fprintf(stderr, "Line %d must be a number!\n", count+1);
+            close_log();
+            return -1;
+        }
+        
         if(atoi(line) == 0){
             fprintf(stderr, "Line %d cannot be 0!\n", count+1);
             close_log();
@@ -53,6 +63,8 @@ int main(int argc, char* argv[]){
         config_values[count] = atoi(line);
         count++;
     }
+    fclose(f);
+    
     if(count != 6){
         fprintf(stderr, "Config File must have 6 lines\n");
         close_log();
@@ -79,17 +91,15 @@ int main(int argc, char* argv[]){
         return -1;
     }
 
-    // proteção caracteres estranhos
-
     /*
     *   Assign values from config file to variables.
     */
-    int MOBILE_USERS    = config_values[0],
-        QUEUE_POS       = config_values[1],
-        AUTH_SERVERS    = config_values[2],
-        AUTH_PROC_TIME  = config_values[3],
-        MAX_VIDEO_WAIT  = config_values[4],
-        MAX_OTHERS_WAIT = config_values[5];
+    MOBILE_USERS    = config_values[0];
+    QUEUE_POS       = config_values[1];
+    AUTH_SERVERS    = config_values[2];
+    AUTH_PROC_TIME  = config_values[3];
+    MAX_VIDEO_WAIT  = config_values[4];
+    MAX_OTHERS_WAIT = config_values[5];
 
     /*
     * Create shared memory
@@ -100,8 +110,6 @@ int main(int argc, char* argv[]){
     /*
     *   Create Authorization Request Manager and Monitor Engine processes
     */
-    pid_t auth_pid, monitor_pid;
-
     if((auth_pid = fork()) == 0){
         // Authorization Request Manager process
         auth_request_manager();
@@ -120,11 +128,8 @@ int main(int argc, char* argv[]){
         return -1;
     }
 
-    // ...
+    signal(SIGINT, handle_sigint);
 
-    /*
-    *   Waiting for processes to be finished
-    */
     waitpid(auth_pid, NULL, 0);
     waitpid(monitor_pid, NULL, 0);
     

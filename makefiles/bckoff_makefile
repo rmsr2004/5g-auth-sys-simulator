@@ -1,5 +1,5 @@
 CC	= gcc
-OBJS	= backoffice/backoffice.o
+OBJS	= backoffice/backoffice.o globals/globals.o
 PROG	= backoffice_user
 FLAGS	= -Wall -Wextra -pthread -lpthread -D_REENTRANT
 
@@ -13,3 +13,7 @@ ${PROG}:	${OBJS}
 
 .c.o:
 	${CC} ${FLAGS} $< -c -o $@
+
+
+globals/globals.o:	globals/globals.c
+globals/globals.c:	globals/globals.h

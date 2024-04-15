@@ -1,5 +1,5 @@
 CC	= gcc
-OBJS	= system_manager/system_manager.o log/log.o shared_memory/shm_lib.o system_manager/sm_lib.o
+OBJS	= system_manager/system_manager.o log/log.o shared_memory/shm_lib.o system_manager/sm_lib.o globals/globals.o
 PROG	= 5g_auth_platform
 FLAGS	= -Wall -Wextra -pthread -lpthread -D_REENTRANT
 
@@ -22,3 +22,6 @@ shared_memory/shm_lib.c:	shared_memory/shm_lib.h
 
 system_manager/sm_lib.o:	system_manager/sm_lib.c
 system_manager/sm_lib.c:	system_manager/sm_lib.h
+
+globals/globals.o:	globals/globals.c
+globals/globals.c:	globals/globals.h

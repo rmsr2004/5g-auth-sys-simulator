@@ -14,7 +14,7 @@
 char* log_file;
 
 // Semaphore to avoid two process writing at same time.
-sem_t* sem;
+sem_t* sem_bck;
 
 void create_log_file(char* file){
     FILE *f = fopen(file, "w");  
@@ -35,8 +35,8 @@ void create_log_file(char* file){
     strcpy(log_file, file);
 
     sem_unlink("sem");
-	sem = sem_open("sem", O_CREAT|O_EXCL, 0700, 1);
-    if(sem == SEM_FAILED){
+	sem_bck = sem_open("sem", O_CREAT|O_EXCL, 0700, 1);
+    if(sem_bck == SEM_FAILED){
         perror("Error creating semaphore");
         return;
     }
@@ -59,7 +59,7 @@ void update_log(char* action){
     int minutes = local_time->tm_min;
     int seconds = local_time->tm_sec;
 
-    sem_wait(sem);
+    sem_wait(sem_bck);
     
     /*
     *   Write the action on file  
@@ -67,7 +67,7 @@ void update_log(char* action){
     FILE *f = fopen(log_file, "a");
     if(f == NULL){
         perror("Error opening log file");
-        sem_post(sem);
+        sem_post(sem_bck);
         return;
     }
 
@@ -76,11 +76,11 @@ void update_log(char* action){
     
     if(fclose(f)){
         perror("Error closing log file");
-        sem_post(sem);
+        sem_post(sem_bck);
         return;
     }
     
-    sem_post(sem);
+    sem_post(sem_bck);
     return;
 }
 
@@ -90,7 +90,7 @@ void close_log(){
     if(log_file != NULL)
         free(log_file);
 
-    sem_close(sem);
+    sem_close(sem_bck);
     sem_unlink("sem");
     return;
 }

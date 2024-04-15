@@ -20,8 +20,20 @@ void* receiver(void* id);
 */
 void* sender(void* id);
 /*
-* Removes '\\n' from the string.
+* Reads from the user_pipe.
 */
-void remove_line_break(char* string);
+char* read_from_user_pipe();
+/*
+* Reads from the back_pipe.
+*/
+char* read_from_back_pipe();
+/*
+* Responsible for handling the SIGINT signal.
+*/
+void handle_sigint();
+/*
+* Returns the maximum between a and b.
+*/
+int max(int a, int b);
 
 #endif
