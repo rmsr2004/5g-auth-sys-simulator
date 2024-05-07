@@ -14,9 +14,6 @@
 #include "sm_lib.h"
 #include "../globals/globals.h"
 
-int shmid;
-int* shared_var;
-
 int main(int argc, char* argv[]){
     /*
     *   Create log file.
@@ -91,6 +88,7 @@ int main(int argc, char* argv[]){
         return -1;
     }
 
+
     /*
     *   Assign values from config file to variables.
     */
@@ -104,8 +102,7 @@ int main(int argc, char* argv[]){
     /*
     * Create shared memory
     */
-    shmid = create_shared_memory();
-    shared_var = attach_shared_memory(shmid);
+    shmid = create_shared_memory(MOBILE_USERS);
 
     /*
     *   Create Authorization Request Manager and Monitor Engine processes
@@ -130,14 +127,14 @@ int main(int argc, char* argv[]){
 
     signal(SIGINT, handle_sigint);
 
+    /*
+    * Create Message Queue
+    */
+    create_message_queue();
+
     waitpid(auth_pid, NULL, 0);
     waitpid(monitor_pid, NULL, 0);
-    
-    /*
-    *   Remove Shared Memory
-    */
-    detach_shared_memory(shared_var);
-    remove_shared_memory(shmid);
+
     
     close_log();
     return 0;

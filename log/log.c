@@ -1,20 +1,17 @@
 // João Afonso dos Santos Simões - 2022236316
 // Rodrigo Miguel Santos Rodrigues - 2022233032
+#include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <time.h>
 #include <sys/ipc.h>
 #include <sys/fcntl.h>
 #include <semaphore.h>
 
-#include "log.h"
-
-// Global variable to save log_file once he is created.
 char* log_file;
-
-// Semaphore to avoid two process writing at same time.
-sem_t* sem_bck;
+sem_t* sem_log;
 
 void create_log_file(char* file){
     FILE *f = fopen(file, "w");  
@@ -35,8 +32,8 @@ void create_log_file(char* file){
     strcpy(log_file, file);
 
     sem_unlink("sem");
-	sem_bck = sem_open("sem", O_CREAT|O_EXCL, 0700, 1);
-    if(sem_bck == SEM_FAILED){
+	sem_log = sem_open("sem", O_CREAT|O_EXCL, 0700, 1);
+    if(sem_log == SEM_FAILED){
         perror("Error creating semaphore");
         return;
     }
@@ -45,7 +42,7 @@ void create_log_file(char* file){
     return;
 }
 
-void update_log(char* action){
+void update_log(const char* action, ...){
     /*
     *   Get current time.
     */
@@ -59,7 +56,7 @@ void update_log(char* action){
     int minutes = local_time->tm_min;
     int seconds = local_time->tm_sec;
 
-    sem_wait(sem_bck);
+    sem_wait(sem_log);
     
     /*
     *   Write the action on file  
@@ -67,20 +64,35 @@ void update_log(char* action){
     FILE *f = fopen(log_file, "a");
     if(f == NULL){
         perror("Error opening log file");
-        sem_post(sem_bck);
+        sem_post(sem_log);
         return;
     }
+    // Inicializar a lista de argumentos variáveis
+    va_list args;
+    va_start(args, action);
 
-    fprintf(f, "%02d:%02d:%02d %s\n", hour, minutes, seconds, action);
-    printf("%02d:%02d:%02d %s\n", hour, minutes, seconds, action);
+    // Imprimir a mensagem formatada no arquivo de log
+    fprintf(f, "%02d:%02d:%02d ", hour, minutes, seconds);
+    vfprintf(f, action, args);
+    fprintf(f, "\n");
+
+    // Limpar a lista de argumentos variáveis
+    va_end(args);
+
+    // Imprimir a mensagem formatada na saída padrão
+    va_start(args, action);
+    printf("%02d:%02d:%02d ", hour, minutes, seconds);
+    vprintf(action, args);
+    printf("\n");
+    va_end(args);
     
     if(fclose(f)){
         perror("Error closing log file");
-        sem_post(sem_bck);
+        sem_post(sem_log);
         return;
     }
     
-    sem_post(sem_bck);
+    sem_post(sem_log);
     return;
 }
 
@@ -90,7 +102,7 @@ void close_log(){
     if(log_file != NULL)
         free(log_file);
 
-    sem_close(sem_bck);
+    sem_close(sem_log);
     sem_unlink("sem");
     return;
 }

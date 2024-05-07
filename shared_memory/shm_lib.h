@@ -3,15 +3,35 @@
 #ifndef SHM_LIB_H
 #define SHM_LIB_H
 
-#define SHM_SIZE 1024
+#define KEY_FILE "/tmp"
+
+// Struct to store shared memory data.
+struct shm_mobile_data{
+    int mobile_id;
+    int initial_plafond;
+    int current_plafond;
+    int alert_sent[3];
+};
+// Struct to store system shared memory data.
+struct shm_system_data{
+    int current_mobile_users;
+    int video_plafond_used;
+    int social_plafond_used;
+    int music_plafond_used;
+    int video_requests;
+    int social_requests;
+    int music_requests;
+};
 
 // Create Shared Memory.
-int create_shared_memory();
+int create_shared_memory(int size);
 // Attach shared memory.
-int* attach_shared_memory(int shmid);
+void* attach_shared_memory(int shmid);
 // Detach Shared Memory.
-int detach_shared_memory(int* shared_var);
+int detach_shared_memory(void* shared_var);
 // Remove Shared Memory.
 void remove_shared_memory(int shmid);
+
+void print_memory(struct shm_mobile_data* mobile_data, struct shm_system_data* system_data);
 
 #endif

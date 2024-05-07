@@ -1,7 +1,7 @@
 CC	= gcc
 OBJS	= backoffice/backoffice.o globals/globals.o
 PROG	= backoffice_user
-FLAGS	= -Wall -Wextra -pthread -lpthread -D_REENTRANT
+FLAGS	= -Wall -Wextra -g
 
 all:	${PROG}
 
@@ -17,3 +17,6 @@ ${PROG}:	${OBJS}
 
 globals/globals.o:	globals/globals.c
 globals/globals.c:	globals/globals.h
+
+backoffice/backoffice.o:	backoffice/backoffice.c
+backoffice/backoffice.c:	backoffice/backoffice.h
