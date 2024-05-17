@@ -1,31 +1,31 @@
+// João Afonso dos Santos Simões - 2022236316
+// Rodrigo Miguel Santos Rodrigues - 2022233032
 #include "globals.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-/*
-*  Global Variables.
-*/
 
-pid_t auth_pid,
-      monitor_pid;
+/* ----------------------------------------------------------------------------------------------------------------------*/
+/*                                          Global Variables                                                             */
+/* ----------------------------------------------------------------------------------------------------------------------*/
+pid_t auth_pid;
+pid_t monitor_pid;
+int MOBILE_USERS;
+int QUEUE_POS;
+int AUTH_SERVERS;
+int AUTH_PROC_TIME;
+int MAX_VIDEO_WAIT;
+int MAX_OTHERS_WAIT;
+int shmid;
+sem_t* shm_sem;     
 void* shared_var;
-int MOBILE_USERS,
-    QUEUE_POS,
-    AUTH_SERVERS,
-    AUTH_PROC_TIME,
-    MAX_VIDEO_WAIT,
-    MAX_OTHERS_WAIT,
-    fd_user_pipe, 
-    fd_back_pipe,
-    msg_queue_id,
-    shmid;
-    
+/* ----------------------------------------------------------------------------------------------------------------------*/
 
-/*
-* Functions.
-*/
+/* ----------------------------------------------------------------------------------------------------------------------*/
+/*                                              Functions                                                                */
+/* ----------------------------------------------------------------------------------------------------------------------*/
 
 int is_number(char* str){
     for(size_t i = 0; i < strlen(str); i++){
@@ -47,3 +47,5 @@ void remove_line_break(char* string){
 int max(int a, int b){
     return a > b ? a : b;
 }
+
+// globals.c

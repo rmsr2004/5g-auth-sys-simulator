@@ -5,12 +5,9 @@
 
 #include <semaphore.h>
 
-// Global variable to save log_file once he is created.
-extern char* log_file;
-
-// Semaphore to avoid two process writing at same time.
-extern sem_t* sem_log;
-
+/* ----------------------------------------------------------------------------------------------------------------------*/
+/*                                              Functions                                                                */
+/* ----------------------------------------------------------------------------------------------------------------------*/
 
 /*
 * Creates log file.
@@ -27,4 +24,4 @@ void update_log(const char* action, ...);
 */
 void close_log();
 
-#endif
+#endif // LOG_H

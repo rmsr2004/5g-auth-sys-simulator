@@ -10,8 +10,16 @@
 #include <sys/fcntl.h>
 #include <semaphore.h>
 
-char* log_file;
-sem_t* sem_log;
+/* ----------------------------------------------------------------------------------------------------------------------*/
+/*                                          Global Variables                                                             */
+/* ----------------------------------------------------------------------------------------------------------------------*/
+char* log_file;     // Variable to save log_file once he is created.      
+sem_t* sem_log;     // Semaphore to avoid two process writing at same time.
+/* ----------------------------------------------------------------------------------------------------------------------*/
+
+/* ----------------------------------------------------------------------------------------------------------------------*/
+/*                                              Functions                                                                */
+/* ----------------------------------------------------------------------------------------------------------------------*/
 
 void create_log_file(char* file){
     FILE *f = fopen(file, "w");  
@@ -28,6 +36,7 @@ void create_log_file(char* file){
     /*
     * Save log_file to use in other functions
     */
+
     log_file = (char*) malloc(strlen(file) * sizeof(char));
     strcpy(log_file, file);
 
@@ -46,6 +55,7 @@ void update_log(const char* action, ...){
     /*
     *   Get current time.
     */
+
     time_t current_time;
     struct tm *local_time;
 
@@ -61,25 +71,27 @@ void update_log(const char* action, ...){
     /*
     *   Write the action on file  
     */
+
     FILE *f = fopen(log_file, "a");
     if(f == NULL){
         perror("Error opening log file");
         sem_post(sem_log);
         return;
     }
-    // Inicializar a lista de argumentos variáveis
+
+    // Initialise the variable argument list
     va_list args;
     va_start(args, action);
 
-    // Imprimir a mensagem formatada no arquivo de log
+    // Print the formatted message in the log file
     fprintf(f, "%02d:%02d:%02d ", hour, minutes, seconds);
     vfprintf(f, action, args);
     fprintf(f, "\n");
 
-    // Limpar a lista de argumentos variáveis
+    // Clear the list of variable arguments
     va_end(args);
 
-    // Imprimir a mensagem formatada na saída padrão
+    // Print the formatted message on stdout
     va_start(args, action);
     printf("%02d:%02d:%02d ", hour, minutes, seconds);
     vprintf(action, args);

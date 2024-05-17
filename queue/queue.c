@@ -1,3 +1,5 @@
+// João Afonso dos Santos Simões - 2022236316
+// Rodrigo Miguel Santos Rodrigues - 2022233032
 #include "queue.h"
 #include "../globals/globals.h"
 #include "../log/log.h"
@@ -13,6 +15,7 @@ queue_t* create_queue(int size){
     queue->tail = NULL;
     queue->max_size = size;
     queue->size = 0;
+
     return queue;
 }
 
@@ -25,7 +28,11 @@ int is_full(queue_t* queue){
 }
 
 int is_queue_half_full(queue_t* queue){
-    return queue->size == queue->max_size / 2;
+    int half_max = queue->max_size / 2;
+    if (queue->max_size % 2 != 0) {
+        half_max++;
+    }
+    return queue->size <= half_max;
 }
 
 void destroy_queue(queue_t* queue){
@@ -76,20 +83,27 @@ int insert(queue_t* queue, struct request_t new_request){
 
 struct request_t drop(queue_t* queue){
     if(is_empty(queue)){
-        return (struct request_t) {0, "0", 0, 0};
+        return (struct request_t) {0, "0", 0, {0, 0}};
     }
 
     struct timeval current_time;
     gettimeofday(&current_time, NULL); // Obter o tempo atual
 
     while(queue->head != NULL){
-        long elapsed_time = (current_time.tv_sec - queue->head->request.creation_time) * 1000 + (current_time.tv_usec - queue->head->request.creation_time) / 1000;
+        if(strcmp(queue->head->request.request_type, "REGISTER") == 0){
+            break;
+        }
+        
+        long elapsed_time = (current_time.tv_sec - queue->head->request.creation_time.tv_sec) * 1000 + 
+                            (current_time.tv_usec - queue->head->request.creation_time.tv_usec) / 1000;
         
         if(strcmp(queue->head->request.request_type, "VIDEO") == 0 && elapsed_time >= MAX_VIDEO_WAIT){
-            printf("Já estou à espera à %ld ms\n", elapsed_time);
+            update_log("SENDER: %s REQUEST (ID = %d) DROPPED BECAUSE IT WASN'T PROCESSED IN TIME", queue->head->request.request_type, 
+                                                                                                   queue->head->request.mobile_id);
             remove_last_node(queue);
         } else if(strcmp(queue->head->request.request_type, "VIDEO") != 0 && elapsed_time >= MAX_OTHERS_WAIT){
-            printf("Já estou à espera à %ld ms\n", elapsed_time);
+            update_log("SENDER: %s REQUEST (ID = %d) DROPPED BECAUSE IT WASN'T PROCESSED IN TIME", queue->head->request.request_type, 
+                                                                                                   queue->head->request.mobile_id);
             remove_last_node(queue);
         } else{
             break;
@@ -97,7 +111,7 @@ struct request_t drop(queue_t* queue){
     }
 
     if(is_empty(queue)){
-        return (struct request_t) {0, "0", 0, 0};
+        return (struct request_t) {0, "0", 0, {0, 0}};
     }
 
     struct request_t request = queue->head->request;
@@ -146,7 +160,7 @@ void print_queue(queue_t* queue){
 
     queue_node* temp = queue->head;
     while(temp != NULL){
-        printf("Request: %d-%s-%d\n", temp->request.mobile_id, temp->request.request_type, temp->request.request_data);
+        printf("%d-%s-%d\n", temp->request.mobile_id, temp->request.request_type, temp->request.request_data);
         temp = temp->next;
     }
     return;

@@ -1,7 +1,7 @@
 CC	= gcc
 OBJS	= system_manager/system_manager.o log/log.o shared_memory/shm_lib.o system_manager/sm_lib.o globals/globals.o queue/queue.o
 PROG	= 5g_auth_platform
-FLAGS	= -Wall -Wextra -pthread -lpthread -D_REENTRANT
+FLAGS	= -Wall -Wextra -pthread -lpthread -D_REENTRANT -g
 
 all:	${PROG}
 

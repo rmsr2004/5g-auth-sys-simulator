@@ -1,7 +1,7 @@
 CC		= gcc
 OBJS	= mobile/mobile.o globals/globals.o
 PROG	= mobile_user
-FLAGS	= -Wall -Wextra -pthread -lpthread -D_REENTRANT
+FLAGS	= -Wall -Wextra
 
 all:	${PROG}
 
